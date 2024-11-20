@@ -10,7 +10,7 @@ from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
 from imap_tools import MailBox, MailMessage, A, AND, OR, NOT, MailMessageFlags
 from bs4 import BeautifulSoup
 
-PROCESSED_EMAILS_FILE = 'processed_emails.txt'
+PROCESSED_EMAILS_FILE = '/home/pi/Documents/fd_signage/processed_emails.txt'
 
 #Load Email Settings from .env file
 from dotenv import load_dotenv
