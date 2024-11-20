@@ -23,6 +23,8 @@ EMAIL_HOST = os.environ.get('EMAIL_HOST')
 DISPLAY_TIME_MINS = .2
 CAD_EMAIL_ADDRESS = "CAD@CABARRUSCOUNTY.US"
 SUBJECT_PREFIX = "Dispatch Report"
+START_TIME_DATE = datetime.datetime.now().date()
+START_TIME = datetime.datetime.now()
 
 # Configuration for the matrix
 options = RGBMatrixOptions()
@@ -39,7 +41,7 @@ def display_message(message_text, minutes):
         offscreen_canvas = matrix.CreateFrameCanvas()
         font = graphics.Font()
         font.LoadFont("./fonts/9x15B.bdf")
-        textColor = graphics.Color(255, 255, 255)
+        textColor = graphics.Color(255, 0, 0)
         pos = offscreen_canvas.width
 
         # Flash Red first
@@ -83,8 +85,9 @@ def handle_email(msg, mailbox):
 
 def is_valid_email(msg):
     correct_subject = msg.subject.startswith(SUBJECT_PREFIX)
+    after_startup = msg.date > START_TIME
 
-    return correct_subject
+    return correct_subject and after_startup
 
 def parse_email(msg):
     """ Parse the email. We expect there to always be 3 bold elements.
@@ -129,8 +132,6 @@ def save_processed_email(uid):
         file.write(f"{uid}\n")
 
 def run_program():
-    # We only want to get emails after the time that this service was started.
-    start_time = datetime.datetime.now().date()
     # Check all environment variables have been set first
     if EMAIL_ADDRESS is None or EMAIL_HOST is None or EMAIL_PASSWORD is None:
         print("Unable to load environment variables")
@@ -144,7 +145,7 @@ def run_program():
                 time.sleep(5)
                 processed_emails = get_processed_emails()
                 print("processed_emails received", processed_emails)
-                retrieved_messages = mailbox.fetch(A(seen=False, from_=CAD_EMAIL_ADDRESS, subject=SUBJECT_PREFIX, date_gte=start_time), mark_seen=False)
+                retrieved_messages = mailbox.fetch(A(seen=False, from_=CAD_EMAIL_ADDRESS, subject=SUBJECT_PREFIX, date_gte=START_TIME_DATE), mark_seen=False)
                 print("Messages retrieved.")
                 for msg in retrieved_messages:
                     # Check if we've already processed the email, if not, process it
