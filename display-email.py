@@ -4,6 +4,7 @@ import time
 import sys
 import traceback
 import datetime
+import os
 
 from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
 from imap_tools import MailBox, MailMessage, A, AND, OR, NOT, MailMessageFlags
