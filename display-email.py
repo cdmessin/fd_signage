@@ -8,6 +8,9 @@ import datetime
 from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
 from imap_tools import MailBox, MailMessage, A, AND, OR, NOT, MailMessageFlags
 from bs4 import BeautifulSoup
+
+PROCESSED_EMAILS_FILE = 'processed_emails.txt'
+
 #Load Email Settings from .env file
 from dotenv import load_dotenv
 load_dotenv()
@@ -29,7 +32,7 @@ options.hardware_mapping = 'adafruit-hat'
 
 matrix = RGBMatrix(options = options)
 
-def display_message(message_text):
+def display_message(message_text, minutes):
     try:
         print("Displaying Message...",)
         offscreen_canvas = matrix.CreateFrameCanvas()
@@ -48,7 +51,7 @@ def display_message(message_text):
             time.sleep(.15)
 
         # Set loop to show message for given time
-        message_end_time = time.time() + 60 * DISPLAY_TIME_MINS
+        message_end_time = time.time() + 60 * minutes
         while time.time() < message_end_time:
             offscreen_canvas.Clear()
             len = graphics.DrawText(offscreen_canvas, font, pos, font.height, textColor, message_text)
@@ -70,25 +73,21 @@ def handle_email(msg, mailbox):
     # Only process it if this is a valid incident report email
     if is_valid_email(msg):
         print("Message is valid incident")
-        print("Marking message as read")
-        mailbox.flag(msg.uid, MailMessageFlags.SEEN, True)
+        # If desired, we can choose to mark the email as read by uncommenting the following line
+        # mailbox.flag(msg.uid, MailMessageFlags.SEEN, True)
         att = msg.attachments[0]
         if '.eml' in att.filename:
             final_message = parse_email_attachment(att)
-            display_message(final_message)
+            display_message(final_message, DISPLAY_TIME_MINS)
         else:
             print('Alert Received: No Email Attachment Found')
-            display_message('Alert Received: No Email Attachment Found')
+            display_message('Alert Received: No Email Attachment Found', DISPLAY_TIME_MINS)
 
 def is_valid_email(msg):
-    # correct_sender = msg.from_ == CAD_EMAIL_ADDRESS
-    # correct_subject = msg.subject.startswith(SUBJECT_PREFIX)
+    correct_subject = msg.subject.startswith(SUBJECT_PREFIX)
     attachement_available = len(msg.attachments) >= 1
-    return attachement_available
-    # return correct_sender and correct_subject and attachement_available
 
-    # Parse the attached email. We expect there to always be 3 bold elements.
-
+    return correct_subject and attachement_available
 
 def parse_email_attachment(attachment):
     """ Parse the attached email. We expect there to always be 3 bold elements.
@@ -103,22 +102,50 @@ def parse_email_attachment(attachment):
     combined_message = bold_elements[1].text + " - " + bold_elements[2].text
     return combined_message
 
+def get_processed_emails():
+    """
+    Retrieve a set of processed emails from a file.
+    Each line in the file is expected to contain one email uid.
+    Returns:
+        set: A set of processed email addresses.
+    """
+    try:
+        with open(PROCESSED_EMAILS_FILE, 'r') as file:
+            return set(line.strip() for line in file)
+    except FileNotFoundError:
+        return set()
+
+def save_processed_email(uid):
+    """
+    Appends the given email UID to the processed emails file.
+    Args:
+        uid (str): The unique identifier of the email to be saved.
+    """
+    with open(PROCESSED_EMAILS_FILE, 'a') as file:
+        file.write(f"{uid}\n")
+
 def run_program():
+    # Check all environment variables have been set first
     if EMAIL_ADDRESS is None or EMAIL_HOST is None or EMAIL_PASSWORD is None:
-	print("Unable to load environment variables")
-	display_message("Unable to load environment variables")
-	sys.exit(0)
+        print("Unable to load environment variables")
+        display_message("Unable to load environment variables", .3)
+        sys.exit(0)
+    # Start the main loop
     try:
         with MailBox(EMAIL_HOST).login(EMAIL_ADDRESS, EMAIL_PASSWORD) as mailbox:
             while True:
                 print("Checking for email")
                 time.sleep(5)
-                retrieved_messages = mailbox.fetch(A(seen=False), mark_seen=True) #A(date=datetime.date(2024, 11, 17))
+                processed_emails = get_processed_emails()
+                retrieved_messages = mailbox.fetch(A(seen=False, from_=CAD_EMAIL_ADDRESS, subject=SUBJECT_PREFIX), mark_seen=False)
                 for msg in retrieved_messages:
-                    handle_email(msg, mailbox)
+                    # Check if we've already processed the email, if not, process it
+                    if msg.uid not in processed_emails:
+                        save_processed_email(msg.uid)
+                        handle_email(msg, mailbox)
     except Exception as e:
         traceback.print_exc()
-        display_message("Email Login Error")
+        display_message("Email Login Error", .3)
 
 def exit_gracefully(signum, frame):
     signal.signal(signal.SIGINT, original_sigint)

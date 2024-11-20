@@ -9,7 +9,7 @@ from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
 from imap_tools import MailBox, A, AND, OR, NOT
 
 # Configuration for the message
-DISPLAY_TIME_MINS = 1 # Currently set to 12 seconds
+DISPLAY_TIME_MINS = .5
 
 # Configuration for the matrix
 options = RGBMatrixOptions()
@@ -20,7 +20,7 @@ options.hardware_mapping = 'adafruit-hat'
 
 matrix = RGBMatrix(options = options)
 
-def display_message(message_text):
+def display_message(message_text, minutes):
     try:
         print("Display Message entered")
         offscreen_canvas = matrix.CreateFrameCanvas()
@@ -29,7 +29,7 @@ def display_message(message_text):
         textColor = graphics.Color(255, 255, 255)
         pos = offscreen_canvas.width
 
-        message_end_time = time.time() + 60 * DISPLAY_TIME_MINS
+        message_end_time = time.time() + 60 * minutes
         while time.time() < message_end_time:
             offscreen_canvas.Clear()
             len = graphics.DrawText(offscreen_canvas, font, pos, font.height, textColor, message_text)
@@ -43,12 +43,11 @@ def display_message(message_text):
         sys.exit(0)
 
 def run_program():
-    # waiting for updates 60 sec, print unseen immediately if any update
     try:
-        display_message("LIFTING ASSISTANCE - 8500 FLOWE FARM RD")
+        # Currently set to display a hardcoded version of the message
+        display_message("LIFTING ASSISTANCE - 8500 FLOWE FARM RD", DISPLAY_TIME_MINS)
     except Exception as e:
         traceback.print_exc()
-        display_message("Email Login Error")
 
 def exit_gracefully(signum, frame):
     signal.signal(signal.SIGINT, original_sigint)
