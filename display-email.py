@@ -77,24 +77,17 @@ def handle_email(msg, mailbox):
         # If desired, we can choose to mark the email as read by uncommenting the following line
         # mailbox.flag(msg.uid, MailMessageFlags.SEEN, True)
 
-        # Pull out the attachment (which is another email)
-        # and then parse the required fields out and display it on the sign
-        att = msg.attachments[0]
-        if '.eml' in att.filename:
-            final_message = parse_email_attachment(att)
-            display_message(final_message, DISPLAY_TIME_MINS)
-        else:
-            print('Alert Received: No Email Attachment Found')
-            display_message('Alert Received: No Email Attachment Found', DISPLAY_TIME_MINS)
+        # Parse the required fields out and display it on the sign
+        final_message = parse_email(msg)
+        display_message(final_message, DISPLAY_TIME_MINS)
 
 def is_valid_email(msg):
     correct_subject = msg.subject.startswith(SUBJECT_PREFIX)
-    attachement_available = len(msg.attachments) >= 1
 
-    return correct_subject and attachement_available
+    return correct_subject
 
-def parse_email_attachment(attachment):
-    """ Parse the attached email. We expect there to always be 3 bold elements.
+def parse_email(msg):
+    """ Parse the email. We expect there to always be 3 bold elements.
         
         The first bold element is "Communications"
         The second bold element is the Nature
@@ -102,8 +95,7 @@ def parse_email_attachment(attachment):
 
         return: str: The message we want to display in the format: "Nature - Address"
     """
-    attached_email = MailMessage.from_bytes(attachment.payload)
-    parsed_html = BeautifulSoup(attached_email.html, features="lxml")
+    parsed_html = BeautifulSoup(msg.html, features="lxml")
     bold_elements = parsed_html.body.find_all('b')
     combined_message = bold_elements[1].text + " - " + bold_elements[2].text
     return combined_message
@@ -153,6 +145,7 @@ def run_program():
                 processed_emails = get_processed_emails()
                 print("processed_emails received", processed_emails)
                 retrieved_messages = mailbox.fetch(A(seen=False, from_=CAD_EMAIL_ADDRESS, subject=SUBJECT_PREFIX, date_gte=start_time), mark_seen=False)
+                print("Messages retrieved.")
                 for msg in retrieved_messages:
                     # Check if we've already processed the email, if not, process it
                     if msg.uid not in processed_emails:
