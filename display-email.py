@@ -115,10 +115,14 @@ def get_processed_emails():
     Returns:
         set: A set of processed email addresses.
     """
+    print("Getting processed emails")
     try:
         if not os.path.exists(PROCESSED_EMAILS_FILE):
+            print("Creating file")
             open(PROCESSED_EMAILS_FILE, 'w').close()  # Create the file if it does not exist
+        print("File should exist, opening now")
         with open(PROCESSED_EMAILS_FILE, 'r') as file:
+            print("Reading file now")
             return set(line.strip() for line in file)
     except FileNotFoundError:
         return set()
@@ -147,6 +151,7 @@ def run_program():
                 print("Checking for email")
                 time.sleep(5)
                 processed_emails = get_processed_emails()
+                print("processed_emails received", processed_emails)
                 retrieved_messages = mailbox.fetch(A(seen=False, from_=CAD_EMAIL_ADDRESS, subject=SUBJECT_PREFIX, date_gte=start_time), mark_seen=False)
                 for msg in retrieved_messages:
                     # Check if we've already processed the email, if not, process it
