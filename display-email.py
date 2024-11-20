@@ -134,7 +134,7 @@ def save_processed_email(uid):
 
 def run_program():
     # We only want to get emails after the time that this service was started.
-    start_time = datetime.datetime.now()
+    start_time = datetime.datetime.now().date()
     # Check all environment variables have been set first
     if EMAIL_ADDRESS is None or EMAIL_HOST is None or EMAIL_PASSWORD is None:
         print("Unable to load environment variables")
