@@ -133,6 +133,8 @@ def save_processed_email(uid):
         file.write(f"{uid}\n")
 
 def run_program():
+    # We only want to get emails after the time that this service was started.
+    start_time = datetime.datetime.now()
     # Check all environment variables have been set first
     if EMAIL_ADDRESS is None or EMAIL_HOST is None or EMAIL_PASSWORD is None:
         print("Unable to load environment variables")
@@ -145,7 +147,7 @@ def run_program():
                 print("Checking for email")
                 time.sleep(5)
                 processed_emails = get_processed_emails()
-                retrieved_messages = mailbox.fetch(A(seen=False, from_=CAD_EMAIL_ADDRESS, subject=SUBJECT_PREFIX), mark_seen=False)
+                retrieved_messages = mailbox.fetch(A(seen=False, from_=CAD_EMAIL_ADDRESS, subject=SUBJECT_PREFIX, date_gte=start_time), mark_seen=False)
                 for msg in retrieved_messages:
                     # Check if we've already processed the email, if not, process it
                     if msg.uid not in processed_emails:
