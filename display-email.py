@@ -69,12 +69,15 @@ def display_message(message_text, minutes):
         sys.exit(0)
 
 def handle_email(msg, mailbox):
-    print('Unread Message Found:', msg.subject, msg.date)
-    # Only process it if this is a valid incident report email
+    print('New Message Found:', msg.subject, msg.date)
+    # Only process it if this is a valid incident report email. This should be the case already, but we are double checking
     if is_valid_email(msg):
         print("Message is valid incident")
         # If desired, we can choose to mark the email as read by uncommenting the following line
         # mailbox.flag(msg.uid, MailMessageFlags.SEEN, True)
+
+        # Pull out the attachment (which is another email)
+        # and then parse the required fields out and display it on the sign
         att = msg.attachments[0]
         if '.eml' in att.filename:
             final_message = parse_email_attachment(att)
@@ -94,7 +97,9 @@ def parse_email_attachment(attachment):
         
         The first bold element is "Communications"
         The second bold element is the Nature
-        The thrid bold element is the Address
+        The third bold element is the Address
+
+        return: str: The message we want to display in the format: "Nature - Address"
     """
     attached_email = MailMessage.from_bytes(attachment.payload)
     parsed_html = BeautifulSoup(attached_email.html, features="lxml")
