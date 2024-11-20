@@ -114,11 +114,8 @@ def get_processed_emails():
     print("Getting processed emails")
     try:
         if not os.path.exists(PROCESSED_EMAILS_FILE):
-            print("Creating file")
             open(PROCESSED_EMAILS_FILE, 'w').close()  # Create the file if it does not exist
-        print("File should exist, opening now")
         with open(PROCESSED_EMAILS_FILE, 'r') as file:
-            print("Reading file now")
             return set(line.strip() for line in file)
     except FileNotFoundError:
         return set()
@@ -143,16 +140,14 @@ def run_program():
         with MailBox(EMAIL_HOST).login(EMAIL_ADDRESS, EMAIL_PASSWORD) as mailbox:
             while True:
                 print("Checking for email")
-                time.sleep(5)
                 processed_emails = get_processed_emails()
-                print("processed_emails received", processed_emails)
                 retrieved_messages = mailbox.fetch(A(seen=False, from_=CAD_EMAIL_ADDRESS, subject=SUBJECT_PREFIX, date_gte=START_TIME_DATE), mark_seen=False)
-                print("Messages retrieved.")
                 for msg in retrieved_messages:
                     # Check if we've already processed the email, if not, process it
                     if msg.uid not in processed_emails:
                         save_processed_email(msg.uid)
                         handle_email(msg, mailbox)
+                time.sleep(5)
     except Exception as e:
         traceback.print_exc()
         display_message("Email Login Error", .3)
