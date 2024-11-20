@@ -116,6 +116,8 @@ def get_processed_emails():
         set: A set of processed email addresses.
     """
     try:
+        if not os.path.exists(PROCESSED_EMAILS_FILE):
+            open(PROCESSED_EMAILS_FILE, 'w').close()  # Create the file if it does not exist
         with open(PROCESSED_EMAILS_FILE, 'r') as file:
             return set(line.strip() for line in file)
     except FileNotFoundError:
