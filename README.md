@@ -111,9 +111,10 @@ The test script, [`display-message.py`](display-message.py), displays a hardcode
 
 ## Fonts
 
-The fonts used for displaying messages are located in the [`fonts`](fonts) directory. These are BDF fonts, a simple bitmap font format suitable for low-resolution screens like LED displays. Future work may be editing one of these to create a font that perfectly fits our 16x32 matrix panels
+The fonts used for displaying messages are located in the [`fonts`](fonts) directory. These are BDF fonts, a simple bitmap font format suitable for low-resolution screens like LED displays. The sepecific font we are using is "Better VCR" taken from dafont.com and translated into a bdf font using the tool referenced in the [`fonts/README.md`](fonts/README.md) file like so:
+`otf2bdf -v -o myfont.bdf ./fd_signage/fonts/ttf/Better\ VCR\ 6.1.ttf`
 
-For more information on the provided fonts and how to create your own, refer to the [`fonts/README.md`](fonts/README.md) file.
+For more information on the provided fonts and how to create your own, refer to that same [`fonts/README.md`](fonts/README.md) file.
 
 ## License
 
