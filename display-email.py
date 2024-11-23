@@ -41,7 +41,7 @@ def display_message(message_text, minutes):
         print("Displaying Message...",)
         offscreen_canvas = matrix.CreateFrameCanvas()
         font = graphics.Font()
-        font.LoadFont("./fonts/9x15B.bdf")
+        font.LoadFont("./fonts/myfont-16px.bdf")
         textColor = graphics.Color(255, 0, 0)
         pos = offscreen_canvas.width
 
@@ -83,6 +83,8 @@ def handle_email(msg, mailbox):
         # Parse the required fields out and display it on the sign
         final_message = parse_email(msg)
         display_message(final_message, DISPLAY_TIME_MINS)
+    else:
+        print("Message is NOT valid incident, passing")
 
 def is_valid_email(msg):
     correct_subject = msg.subject.startswith(SUBJECT_PREFIX)
@@ -111,7 +113,6 @@ def get_processed_emails():
     Returns:
         set: A set of processed email addresses.
     """
-    print("Getting processed emails")
     try:
         if not os.path.exists(PROCESSED_EMAILS_FILE):
             open(PROCESSED_EMAILS_FILE, 'w').close()  # Create the file if it does not exist
@@ -139,8 +140,8 @@ def run_program():
     try:
         with MailBox(EMAIL_HOST).login(EMAIL_ADDRESS, EMAIL_PASSWORD) as mailbox:
             while True:
-                print("Checking for email")
                 processed_emails = get_processed_emails()
+                print("Polling Inbox")
                 retrieved_messages = mailbox.fetch(A(seen=False, from_=CAD_EMAIL_ADDRESS, subject=SUBJECT_PREFIX, date_gte=START_TIME_DATE), mark_seen=False)
                 for msg in retrieved_messages:
                     # Check if we've already processed the email, if not, process it

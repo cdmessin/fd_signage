@@ -25,8 +25,8 @@ def display_message(message_text, minutes):
         print("Display Message entered")
         offscreen_canvas = matrix.CreateFrameCanvas()
         font = graphics.Font()
-        font.LoadFont("./fonts/9x15B.bdf")
-        textColor = graphics.Color(255, 255, 255)
+        font.LoadFont("./fonts/myfont-16px.bdf")
+        textColor = graphics.Color(255, 0, 0)
         pos = offscreen_canvas.width
 
         message_end_time = time.time() + 60 * minutes

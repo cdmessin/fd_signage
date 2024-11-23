@@ -6,6 +6,7 @@ After=multi-user.target
 Type=idle
 ExecStart=/usr/bin/python /home/pi/Documents/fd_signage/display-email.py > /home/pi/Documents/fd_signage/display-email.log 2>&1
 WorkingDirectory=/home/pi/Documents/fd_signage
+Environment=PYTHONUNBUFFERED=1
  
 [Install]
 WantedBy=multi-user.target

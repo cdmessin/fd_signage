@@ -59,7 +59,8 @@ Attached are some other helpful commands relating to this service:
 
 ```sh
 # View Logs
-sudo journalctl -u sign.service
+journalctl -u sign.service
+journalctl -u sign.service -n 100 -f
 
 # Temporarily Turn off service
 sudo systemctl stop sign.service
