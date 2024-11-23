@@ -5,9 +5,11 @@ import sys
 import traceback
 import datetime
 import os
+import imaplib
+import socket
 
 from rgbmatrix import RGBMatrix, RGBMatrixOptions, graphics
-from imap_tools import MailBox, MailMessage, A, AND, OR, NOT, MailMessageFlags
+from imap_tools import MailBox, MailMessage, A, AND, OR, NOT, MailMessageFlags, MailboxLoginError, MailboxLogoutError
 from bs4 import BeautifulSoup
 
 PROCESSED_EMAILS_FILE = '/home/pi/Documents/fd_signage/processed_emails.txt'
@@ -137,22 +139,37 @@ def run_program():
         display_message("Unable to load environment variables", .3)
         sys.exit(0)
     # Start the main loop
-    try:
-        with MailBox(EMAIL_HOST).login(EMAIL_ADDRESS, EMAIL_PASSWORD) as mailbox:
-            while True:
-                processed_emails = get_processed_emails()
-                print("Polling Inbox")
-                retrieved_messages = mailbox.fetch(A(seen=False, from_=CAD_EMAIL_ADDRESS, subject=SUBJECT_PREFIX, date_gte=START_TIME_DATE), mark_seen=False)
-                for msg in retrieved_messages:
-                    # Check if we've already processed the email, if not, process it
-                    if msg.uid not in processed_emails:
-                        save_processed_email(msg.uid)
-                        handle_email(msg, mailbox)
-                time.sleep(5)
-    except Exception as e:
-        traceback.print_exc()
-        display_message("Email Login Error", .3)
-
+    done = False
+    while not done:
+        connection_start_time = time.monotonic()
+        connection_live_time = 0.0
+        try:
+            with MailBox(EMAIL_HOST).login(EMAIL_ADDRESS, EMAIL_PASSWORD) as mailbox:
+                print('@@ new connection', time.asctime())
+                while connection_live_time < 29 * 60:
+                    try:
+                        responses = mailbox.idle.wait(timeout=60)
+                        if responses:
+                            print(time.asctime(), 'IDLE responses:', responses) # I'm not sure what this looks like right now.
+                            processed_emails = get_processed_emails()
+                            retrieved_messages = mailbox.fetch(A(seen=False, from_=CAD_EMAIL_ADDRESS, subject=SUBJECT_PREFIX, date_gte=START_TIME_DATE), mark_seen=False)
+                            for msg in retrieved_messages:
+                                # Check if we've already processed the email, if not, process it
+                                if msg.uid not in processed_emails:
+                                    save_processed_email(msg.uid)
+                                    handle_email(msg, mailbox)
+                    except KeyboardInterrupt:
+                        print('~KeyboardInterrupt')
+                        done = True
+                        break
+                    connection_live_time = time.monotonic() - connection_start_time
+        except (TimeoutError, ConnectionError,
+                imaplib.IMAP4.abort, MailboxLoginError, MailboxLogoutError,
+                socket.herror, socket.gaierror, socket.timeout) as e:
+            print(f'## Error\n{e}\n{traceback.format_exc()}\nreconnect in a few seconds...')
+            time.sleep(5)
+        
+# We set this up in the "__main__" section to exit gracefully when ctrl-c is pressed
 def exit_gracefully(signum, frame):
     signal.signal(signal.SIGINT, original_sigint)
 
