@@ -35,7 +35,7 @@ START_TIME = datetime.datetime.now()
 options = RGBMatrixOptions()
 options.drop_privileges=False # Required to read/write the processed emails file
 options.rows = 16
-options.chain_length = 1
+options.chain_length = 4
 options.parallel = 1
 options.hardware_mapping = 'adafruit-hat'
 
