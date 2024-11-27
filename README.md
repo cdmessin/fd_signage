@@ -12,9 +12,11 @@ This repository contains scripts for displaying messages on an LED matrix using 
 - LED matrix hardware (configured for Adafruit HAT)
 
 ## Prerequisites
-
-- Switch off on-board sound on raspberry pi (dtparam=audio=off in /boot/config.txt)
-- Do not use graphical user interface
+- This was coded for a Raspberry Pi 3B, performance has not been tested on other models
+- Raspberry Pi was Imaged with Raspberry PI OS Bookworm. The remainder of the README assumes this is the OS that is being used for this setup. There are some steps that are specific to bookworm.
+- Switch off on-board sound on raspberry pi. Edit `/boot/config.txt` and set `dtparam=audio=off`
+- Do not use graphical user interface. Change to headless mode to save on processing.
+- Original wifi network was setup in imager. Additonal wifi was set up for use in a new location `sudo nmtui edit`
 
 ## Installation
 
