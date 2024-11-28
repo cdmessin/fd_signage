@@ -12,11 +12,27 @@ This repository contains scripts for displaying messages on an LED matrix using 
 - LED matrix hardware (configured for Adafruit HAT)
 
 ## Prerequisites
+
 - This was coded for a Raspberry Pi 3B, performance has not been tested on other models
-- Raspberry Pi was Imaged with Raspberry PI OS Bookworm. The remainder of the README assumes this is the OS that is being used for this setup. There are some steps that are specific to bookworm.
+- Raspberry Pi was Imaged with Raspberry Pi OS Bookworm. The remainder of the README assumes this is the OS that is being used for this setup. There are some steps that are specific to bookworm.
 - Switch off on-board sound on raspberry pi. Edit `/boot/config.txt` and set `dtparam=audio=off`
 - Do not use graphical user interface. Change to headless mode to save on processing.
-- Original wifi network was setup in imager. Additonal wifi was set up for use in a new location `sudo nmtui edit`
+- Original wifi network was setup in [imager](https://www.raspberrypi.com/software/). Additional wifi was set up for use in a new location `sudo nmtui edit`
+
+### Wifi Setup
+
+On the Bookworm OS, nmtui and nmcli are the main network managers.
+The initial wifi network is configured using the [imager](https://www.raspberrypi.com/software/), however we need to configure this to automatically connect to other wifi networks.
+
+1. Run `sudo nmtui edit` to open a graphical command line program where you can add wifi networks.
+2. Set the wifi connection priority using nmcli:
+
+```sh
+# List the connections set
+sudo nmcli --fields autoconnect-priority,name connection
+# Set the priority for each connection. Higher numbers mean higher priority
+sudo nmcli connection modify "<connection_name_here>" connection.autoconnect-priority <priority_integer>
+```
 
 ## Installation
 
@@ -25,6 +41,7 @@ This repository contains scripts for displaying messages on an LED matrix using 
     - Clone https://github.com/hzeller/rpi-rgb-led-matrix.git
     - Edit the lib/Makefile, line 37 to say `HARDWARE_DESC?=adafruit-hat`
     - Run:
+  
     ```sh
     sudo apt-get update && sudo apt-get install python3-dev cython3 -y
     make build-python 
@@ -32,12 +49,14 @@ This repository contains scripts for displaying messages on an LED matrix using 
     ```
 
 2. Clone the repository:
+
     ```sh
     git clone https://github.com/yourusername/fd_signage.git
     cd fd_signage
     ```
 
 3. Install the required Python packages:
+
     ```sh
     sudo apt install python3-imap_tools
     sudo apt install python3-beautifulsoup4
@@ -45,6 +64,7 @@ This repository contains scripts for displaying messages on an LED matrix using 
     ```
 
 4. Set up your environment variables in a `.env` file:
+
     ```env
     EMAIL_ADDRESS=your_email@example.com
     EMAIL_PASSWORD=your_password
@@ -68,7 +88,7 @@ journalctl -u sign.service -n 100 -f
 sudo systemctl stop sign.service
 
 # Turn back on (after temporarily turned off)
-sudo systemctl start
+sudo systemctl start sign.service
 
 # Enable Service
 sudo systemctl enable sign.service
