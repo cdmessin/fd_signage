@@ -27,7 +27,16 @@ def display_message(message_text, minutes):
         font = graphics.Font()
         font.LoadFont("./fonts/myfont-16px.bdf")
         textColor = graphics.Color(255, 0, 0)
-        pos = offscreen_canvas.width
+        pos = offscreen_canvas.width/2
+
+        # Flash Red first
+        for i in range(1):
+            offscreen_canvas.Fill(255, 0, 0)
+            offscreen_canvas = matrix.SwapOnVSync(offscreen_canvas)
+            time.sleep(.15)
+            offscreen_canvas.Clear()
+            offscreen_canvas = matrix.SwapOnVSync(offscreen_canvas)
+            time.sleep(.15)
 
         message_end_time = time.time() + 60 * minutes
         while time.time() < message_end_time:
@@ -37,7 +46,7 @@ def display_message(message_text, minutes):
             if (pos + len < 0):
                 pos = offscreen_canvas.width
 
-            time.sleep(0.02)
+            time.sleep(0.015)
             offscreen_canvas = matrix.SwapOnVSync(offscreen_canvas)
     except KeyboardInterrupt:
         sys.exit(0)

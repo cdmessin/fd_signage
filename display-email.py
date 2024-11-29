@@ -52,10 +52,10 @@ def display_message(message_text, minutes):
         font = graphics.Font()
         font.LoadFont("./fonts/myfont-16px.bdf")
         textColor = graphics.Color(255, 0, 0)
-        pos = offscreen_canvas.width
+        pos = offscreen_canvas.width/2 #Start the message halfway across the sign
 
-        # Flash Red first
-        for i in range(6):
+        # Flash Red first (Looping in case we need to turn up number of flashes)
+        for i in range(1):
             offscreen_canvas.Fill(255, 0, 0)
             offscreen_canvas = matrix.SwapOnVSync(offscreen_canvas)
             time.sleep(.15)
@@ -73,7 +73,7 @@ def display_message(message_text, minutes):
             if (pos + len < 0):
                 pos = offscreen_canvas.width
 
-            time.sleep(0.02)
+            time.sleep(0.015)
             offscreen_canvas = matrix.SwapOnVSync(offscreen_canvas)
 
             # Check if a new message is available
