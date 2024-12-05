@@ -1,6 +1,10 @@
 # fd_signage
 
-This repository contains scripts for displaying messages on an LED matrix using emails as the source of the messages. The main functionality is implemented in [`display-email.py`](display-email.py), while [`display-message.py`](display-message.py) serves as a simple test script.
+This repository contains a program to be used by a volunteer fire department for displaying messages on an LED matrix using dispatch emails as the source of the messages. The python script created is specific to the emails being sent while this was implemented. The main functionality is implemented in [`display-email.py`](display-email.py), while [`display-message.py`](display-message.py) serves as a simple test script.
+
+This readme contains information on the entire project setup which results in a raspberry pi which upon boot:
+- Connects to the configured wifi network
+- Automatically starts up the service to check for emails
 
 ## Requirements
 
@@ -10,6 +14,10 @@ This repository contains scripts for displaying messages on an LED matrix using 
 - `beautifulsoup4` library
 - `dotenv` library
 - LED matrix hardware (configured for Adafruit HAT)
+    - 4 [16x32 LED Matrix Panels - 6mm pitch](https://www.adafruit.com/product/420) (Each comes with a single GPIO ribbon and a power cable that can supply 2 panels)
+    - 2 [Female DC Power Adapters - 2.1mm jack to screw terminal block](https://www.adafruit.com/product/368)
+    - 1 [Adadfruit RGB Matrix Bonnet for Raspberry Pi](https://www.adafruit.com/product/3211)
+    - 2 5V 4A Power Supply (Power Configuration was setup following [this guide here](https://learn.adafruit.com/led-matrix-sports-scoreboard/wiring-and-assembly#power-3154589)
 
 ## Prerequisites
 
