@@ -127,7 +127,7 @@ The main script, [`display-email.py`](display-email.py), checks for new emails a
 2. Run the script:
 
     ```sh
-    sudo ./display-email.py
+    sudo python3 ./display-email.py
     ```
 
 ### Running the Test Script
@@ -137,7 +137,7 @@ The test script, [`display-message.py`](display-message.py), displays a hardcode
 1. Run the script:
 
     ```sh
-    sudo ./display-message.py
+    sudo python3 ./display-message.py
     ```
 
 ## Fonts
